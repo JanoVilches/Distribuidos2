@@ -1,0 +1,12 @@
+- las maquinas tienen java 8 y sdk 1.8
+- nosotros elegimos como pasa los mensajes SOCKETS!!!!!!
+- detectar al coordinador como nos acomode, con pin, con lo que sea. porque HARAN CAERCE AL COORDINADOR. sockets para 
+saberlo.
+- archivo log: solo 1 pero replicado en toda las maquinas, y guarda todas las acciones que se van realizando de entradas
+espera, etc.
+- enfermeros, esperan a que no exista ningun doctor en cola y paramedicas esperan a que ni enfermeros ni doc esten en cola
+- solo elegir uno de los 2 tipos de procedimientos que se nos describe. 
+- doc, enf y param son instancias de cada clase y se rigen por el archvio de requerimientos que dicen el orden que debe 
+seguir cada personal.
+- requerimientos: cada personal tendra una lista de dic con el paciente y que quiere hacer.
+- una maquina que se cae no vuelve nunca, es libre el como sacar de cola a los procesos de esa cola.
