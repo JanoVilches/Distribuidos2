@@ -85,10 +85,7 @@ public class Server {
                 i ++;
             }
 
-            System.out.println(Doctores.size());
             System.out.println(max_prioridad);
-            System.out.println(Enfermeros.size());
-            System.out.println(Paramedicos.size());
         
         } catch (FileNotFoundException e) {
 			System.out.println("Error: "+e.getMessage());
@@ -125,10 +122,12 @@ public class Server {
             System.err.println("Invalid Format!");
         }
 
-        System.out.println("Ingrese la cantidad de maquinas existentes: ");
+        System.out.println("Ingrese la cantidad de maquinas existentes:");
         respuesta = scan.nextInt();
+        IP = scan.nextLine();
+
         for (int i = 0; i < respuesta; i++) {
-            System.out.println("Ingrese IP  y puerto de la maquina, separados por un espacio: ");
+            System.out.println("Ingrese IP  y puerto de la maquina, separados por un espacio:");
             IP = scan.nextLine();
             datos = IP.split(" ");
             maquinas.add(datos); 
@@ -145,53 +144,29 @@ public class Server {
             System.out.println("Este servidor iniciara las llamadas");
         }
 
-        ServerSocket sc;
-        Socket so;
+        //Creacion de los Thread Servidor y Cliente que realizaran todo el codigo.
 
-        DataInputStream entrada = null;
-        DataOutputStream salida = null;
+        //falta crear todo el codigo del ServerThread.
+        /*ServerThread server = new ServerThread(); //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
+        server.star();
+        Thread.sleep(2000);
+        System.out.println("Presione Enter para iniciar el servidor, cuando esten todos otros servidores inicializados");
+        String iniciar = scan.nextLine();
+        System.out.println("Dando tiempo para inicializar el resto de servidores");
+        Thread.sleep(10000);*/
 
-        String mensajeRecibido;
+        //Se hace flooding de mi prioridad al resto de los servidores.
 
-        try{
-
-            sc = new ServerSocket(PUERTO); //crea soquete servidor que escuchara en el puerto dado
-
-            so = new Socket();
-
-            System.out.println("Esperando una conexion");
-
-            so = sc.accept();
-
-            //Se espera una conexion por parte del cliente.
-
-            System.out.println("Un cliente se ha conectado");
-            
-            entrada = new DataInputStream(so.getInputStream());
-
-            salida = new DataOutputStream(so.getOutputStream());
-
-            salida.flush();//no se que hace.
-
-            System.out.println("Confirmando conexion al cliente....");
-
-            salida.writeUTF("Conexión exitosa...n envia un mensaje :D");
-            salida.flush();
-
-            mensajeRecibido = (String) entrada.readUTF();
-
-            System.out.println(mensajeRecibido);
-
-            salida.writeUTF("Se recibio tu mensaje.n Terminando conexion...");
-
-            salida.writeUTF("Gracias por conectarte, adios!");
-
-            System.out.println("Cerrando conexión...");
-
-            sc.close();//Aqui se cierra la conexión con el cliente
-
-        } catch(Exception e ){
-            System.out.println("Error: "+e.getMessage());
+        for (int i = 0; i < maquinas.size(); i++) {//flooding de las pripridades.
+            try{
+                //se necesita, ip y puerto de origen, ip y puerto de destino, nombre, y mensaje: en este caso es el la ip del server + su prioridad.
+                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", IP + "," + Integer.toString(max_prioridad));
+                c.start();
+            }
+            catch(NumberFormatException a){
+                System.out.println("Error al enviar un cliente al port "+ maquinas.get(i)[1]);
+                System.out.println(a);
+            }
         }
 
     }

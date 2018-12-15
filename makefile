@@ -1,10 +1,10 @@
-all: Enfermero.class Cliente.class Doctor.class Paramedico.class Servidor.class
+all: Enfermero.class ClienteThread.class Doctor.class Paramedico.class Servidor.class
 
 Enfermero.class: Enfermero.java
 	javac Enfermero.java
 
-Cliente.class: Cliente.java
-	javac Cliente.java
+ClienteThread.class: ClienteThread.java
+	javac ClienteThread.java
 
 Doctor.class: Doctor.java
 	javac Doctor.java
