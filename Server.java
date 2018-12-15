@@ -34,6 +34,9 @@ public class Server {
             ArrayList<Enfermero> Enfermeros = new ArrayList<Enfermero>();
             ArrayList<Paramedico> Paramedicos = new ArrayList<Paramedico>();
 
+            long max_prioridad = 0; //maxima prioridad de alguno de los doctores.
+            long prioridad = 0;
+
             for (i = 0; i < DocJson.size(); i++) { //lo recorre y crea las instancias de los Doc
                 JSONObject Doc = (JSONObject) DocJson.get(i);
                 long id = (Long) Doc.get("id");
@@ -43,6 +46,13 @@ public class Server {
                 long experiencia = (Long) Doc.get("experiencia");
                 Doctor doc = new Doctor(id, nombre, apellido, estudios, experiencia);
                 Doctores.add(doc);
+    
+                prioridad += (estudios + experiencia); //se busca la maxima prioridad de los doctores.
+                if (prioridad > max_prioridad) {
+                    max_prioridad = prioridad;
+                }
+
+                prioridad = 0;
             }
 
             JSONArray  EnfJson = (JSONArray) jsonObject.get("enfermero");//leo el array Json de enf.
@@ -76,6 +86,7 @@ public class Server {
             }
 
             System.out.println(Doctores.size());
+            System.out.println(max_prioridad);
             System.out.println(Enfermeros.size());
             System.out.println(Paramedicos.size());
         
@@ -86,10 +97,25 @@ public class Server {
 		} catch (ParseException e) {
 			System.out.println("Error: "+e.getMessage());
         }
+
+        //Se solicita la ip y puerto de la maquina.
         
         Scanner scan = new Scanner(System.in);
 
-        int PUERTO = 9999;
+        String IP = "";
+        int PUERTO = 0;
+        boolean coordinador = false;
+        int respuesta;
+        ArrayList<String[]> maquinas = new ArrayList<String[]>();
+        String[] datos;
+
+        System.out.println("Ingrese la IP de la maquina:");
+
+        try{
+            IP = scan.nextLine();
+        }catch(NumberFormatException nfe){
+            System.err.println("Invalid Format!");
+        }
 
         System.out.println("Ingrese el puerto de esta maquina:");
 
@@ -97,6 +123,26 @@ public class Server {
             PUERTO = scan.nextInt();
         }catch(NumberFormatException nfe){
             System.err.println("Invalid Format!");
+        }
+
+        System.out.println("Ingrese la cantidad de maquinas existentes: ");
+        respuesta = scan.nextInt();
+        for (int i = 0; i < respuesta; i++) {
+            System.out.println("Ingrese IP  y puerto de la maquina, separados por un espacio: ");
+            IP = scan.nextLine();
+            datos = IP.split(" ");
+            maquinas.add(datos); 
+        }
+
+        System.out.println(maquinas.size());
+
+        //Se solicita saber si esta maquina sera la que realize el algoritmo de bull.
+
+        System .out.print("Este servidor debe partir con la comunicacion? 1: Si / 0: No: ");
+        respuesta = scan.nextInt();
+        if (respuesta == 1){
+            coordinador = true;
+            System.out.println("Este servidor iniciara las llamadas");
         }
 
         ServerSocket sc;
