@@ -13,9 +13,16 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+
 public class Server {
     
     public static void main(String[] args) {
+        //Listas para almacenar todos los doctores, enfermeros y paramedicos.
+        ArrayList<Doctor> Doctores = new ArrayList<Doctor>();
+        ArrayList<Enfermero> Enfermeros = new ArrayList<Enfermero>();
+        ArrayList<Paramedico> Paramedicos = new ArrayList<Paramedico>();
+
+        long max_prioridad = 0; //maxima prioridad de alguno de los doctores.
     
         try { //lecutra de el archivo Json con los Trabajadores del Hospital.
 
@@ -29,12 +36,6 @@ public class Server {
 
             int i = 0; 
 
-            //Listas para almacenar todos los doctores, enfermeros y paramedicos.
-            ArrayList<Doctor> Doctores = new ArrayList<Doctor>();
-            ArrayList<Enfermero> Enfermeros = new ArrayList<Enfermero>();
-            ArrayList<Paramedico> Paramedicos = new ArrayList<Paramedico>();
-
-            long max_prioridad = 0; //maxima prioridad de alguno de los doctores.
             long prioridad = 0;
 
             for (i = 0; i < DocJson.size(); i++) { //lo recorre y crea las instancias de los Doc
@@ -104,7 +105,7 @@ public class Server {
         boolean coordinador = false;
         int respuesta;
         ArrayList<String[]> maquinas = new ArrayList<String[]>();
-        String[] datos;
+        String[] datos = null;
 
         System.out.println("Ingrese la IP de la maquina:");
 
@@ -147,20 +148,24 @@ public class Server {
         //Creacion de los Thread Servidor y Cliente que realizaran todo el codigo.
 
         //falta crear todo el codigo del ServerThread.
-        /*ServerThread server = new ServerThread(); //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
-        server.star();
-        Thread.sleep(2000);
+        ServerThread server = new ServerThread(Doctores, Enfermeros, Paramedicos, max_prioridad, maquinas, PUERTO, coordinador); //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
+        server.start();
+        try{
+            Thread.sleep(2000);
+        } catch (Exception e){}
         System.out.println("Presione Enter para iniciar el servidor, cuando esten todos otros servidores inicializados");
         String iniciar = scan.nextLine();
         System.out.println("Dando tiempo para inicializar el resto de servidores");
-        Thread.sleep(10000);*/
+        try{
+            Thread.sleep(10000);
+        } catch (Exception e){}
 
         //Se hace flooding de mi prioridad al resto de los servidores.
 
         for (int i = 0; i < maquinas.size(); i++) {//flooding de las pripridades.
             try{
                 //se necesita, ip y puerto de origen, ip y puerto de destino, nombre, y mensaje: en este caso es el la ip del server + su prioridad.
-                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", IP + "," + Integer.toString(max_prioridad));
+                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", datos[0] + "," + Long.toString(max_prioridad));
                 c.start();
             }
             catch(NumberFormatException a){
