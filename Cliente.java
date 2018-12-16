@@ -1,11 +1,30 @@
 import java.net.*;
 import java.io.*;
+import java.util.Scanner;
 
 public class Cliente {
     public static void main(String[] args) {
         
-        String HOST = "localhost";
-        int PUERTO = 50051;
+        Scanner scan = new Scanner(System.in);
+
+        String IP = "";
+        int PUERTO = 0;
+
+        System.out.println("Ingrese la IP de la maquina:");
+
+        try{
+            IP = scan.nextLine();
+        }catch(NumberFormatException nfe){
+            System.err.println("Invalid Format!");
+        }
+
+        System.out.println("Ingrese el puerto de esta maquina:");
+
+        try{
+            PUERTO = scan.nextInt();
+        }catch(NumberFormatException nfe){
+            System.err.println("Invalid Format!");
+        }
 
         Socket sc;
 
@@ -16,7 +35,7 @@ public class Cliente {
 
         try {
 
-            sc = new Socket(HOST, PUERTO); //conectar al localhost
+            sc = new Socket(IP, PUERTO); //conectar al localhost
 
             System.out.println("Conectado...");
 
