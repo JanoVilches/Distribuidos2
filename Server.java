@@ -101,6 +101,7 @@ public class Server {
         Scanner scan = new Scanner(System.in);
 
         String IP = "";
+        String auxIP = "";
         int PUERTO = 0;
         boolean coordinador = false;
         int respuesta;
@@ -125,12 +126,12 @@ public class Server {
 
         System.out.println("Ingrese la cantidad de maquinas existentes:");
         respuesta = scan.nextInt();
-        IP = scan.nextLine();
+        auxIP = scan.nextLine();
 
         for (int i = 0; i < respuesta; i++) {
             System.out.println("Ingrese IP  y puerto de la maquina, separados por un espacio:");
-            IP = scan.nextLine();
-            datos = IP.split(" ");
+            auxIP = scan.nextLine();
+            datos = auxIP.split(" ");
             maquinas.add(datos); 
         }
 
@@ -147,8 +148,8 @@ public class Server {
 
         //Creacion de los Thread Servidor y Cliente que realizaran todo el codigo.
 
-        //falta crear todo el codigo del ServerThread.
-        ServerThread server = new ServerThread(Doctores, Enfermeros, Paramedicos, max_prioridad, maquinas, PUERTO, coordinador); //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
+         //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
+        ServerThread server = new ServerThread(Doctores, Enfermeros, Paramedicos, max_prioridad, maquinas, PUERTO, coordinador, IP);
         server.start();
         try{
             Thread.sleep(2000);
@@ -165,7 +166,7 @@ public class Server {
         for (int i = 0; i < maquinas.size(); i++) {//flooding de las pripridades.
             try{
                 //se necesita, ip y puerto de origen, ip y puerto de destino, nombre, y mensaje: en este caso es el la ip del server + su prioridad.
-                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", datos[0] + "," + Long.toString(max_prioridad));
+                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", IP + "," + Long.toString(max_prioridad));
                 c.start();
             }
             catch(NumberFormatException a){
