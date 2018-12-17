@@ -271,7 +271,7 @@ public class Server {
         //Creacion de los Thread Servidor y Cliente que realizaran todo el codigo.
 
          //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
-        ServerThread server = new ServerThread(Doctores, Enfermeros, Paramedicos, max_prioridad, maquinas, PUERTO, coordinador, IP);
+        ServerThread server = new ServerThread(Doctores, Enfermeros, Paramedicos, Requerimientos, Pacientes, max_prioridad, maquinas, PUERTO, coordinador, IP);
         server.start();
         try{
             Thread.sleep(2000);
