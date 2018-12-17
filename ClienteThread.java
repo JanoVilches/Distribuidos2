@@ -33,9 +33,7 @@ public class ClienteThread implements Runnable {
             sc.close();
         } catch (Exception e) {
             try{
-                System.out.println("Error al conectarse con el servidor");
                 sc = new Socket(ipOrigen, puertoOrigen); //nos conectamos al servidor que nos llamó.
-                System.out.println("Enviando reporte de error en la conexion con " + Integer.toString(puertoDestino) + ", se necesita coordinar nuevamente"); //cambiar luego a IP.
                 salida = new DataOutputStream(sc.getOutputStream());
                 salida.writeUTF("404");//sera la notificacion de error si se cae una maquina y no se logra conectar.
 

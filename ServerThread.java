@@ -59,20 +59,22 @@ public class ServerThread implements Runnable{
                 mensaje = input.readUTF();
                 messageElements = mensaje.split(",");
                 //si el recibido es mayor
-                if(prioridad < Long.parseLong(messageElements[1])){
+                if(prioridad < Long.parseLong(messageElements[2])){
                     //se busca y se agrega su prioridad
                     for(int j = 0; j < maquinas.size(); ++j){
-                        if(messageElements[0].equals(maquinas.get(j)[0])){
+                        if(messageElements[0].equals(maquinas.get(j)[0]) && messageElements[1].equals(maquinas.get(j)[1])){
                             String[] aux = new String[3];
                             //ip
                             aux[0] = maquinas.get(j)[0];
                             //puerto
                             aux[1] = maquinas.get(j)[1];
-                            aux[2] = messageElements[1];
+                            aux[2] = messageElements[2];
                             maquinasMayores.add(aux);
                         }
                     }
                 }
+                System.out.println("maquinas");
+                System.out.println(Integer.toString(maquinasMayores.size()));
                 sock.close();
                 input.close();
             }
@@ -186,13 +188,14 @@ public class ServerThread implements Runnable{
         }
 //
 //INICIO POST ELECCIONES
-        System.out.println(messageElements[0]);
 
         while(true){
             try{
                 messageElements = mensaje.split(":");
                 //si reciben un mensaje de anuncio de coordinador
                 if(messageElements[0].equals("electo")){
+                    System.out.println("coordinador");
+                    System.out.println(Arrays.toString(messageElements));
                     if(isCoordinador){
                         System.out.println("soy el coordinador con prioridad " + Long.toString(prioridad));
                     }
@@ -245,30 +248,39 @@ public class ServerThread implements Runnable{
                         clientAlive.start();
                     }
                     isCoordinador = true;
-                    //espera mensaje de respuesta de las maquinas mayores (yes o 404)
-                    for(int i = 0; i < maquinasMayores.size(); ++i){
+                    //comienza a revisar todos los mensajes que lleguen producto de la elección
+                    vaciando = true;
+                    while(vaciando){
                         sock = serv.accept();
                         input = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
                         mensaje = input.readUTF();
-                        //si recibe al menos un yes, no es coordinadora
-                        if(mensaje.equals("yes")){
+                        messageElements = mensaje.split(":");
+                        //si una mayor esta viva, entonces no coordina
+                        if(messageElements[0].equals("yes")){
                             isCoordinador = false;
+                        }
+                        //si recibe un isAlive, entonces responde y envia a los mayores
+                        else if(messageElements[0].equals("isAlive")){
+                            //dice que si esta viva
+                            clientYes = new ClienteThread(ip, puerto, messageElements[1], Integer.parseInt(messageElements[2]), "", "yes");
+                            clientYes.start();
+                            for(int i = 0; i < maquinasMayores.size(); ++i){
+                                ClienteThread clientAlive = new ClienteThread(ip, puerto, maquinasMayores.get(i)[0], Integer.parseInt(maquinasMayores.get(i)[1]), "", "isAlive:" + ip + ":" + Integer.toString(puerto));
+                                clientAlive.start();
+                            }
+                        }
+                        //si recibe un anuncio de coordinador, lo actualiza y termina de vaciar
+                        else if(messageElements[0].equals("electo")){
+                            isCoordinador = false;
+                            coordinador[0] = messageElements[1];
+                            coordinador[1] = messageElements[2];
                         }
                         sock.close();
                         input.close();
                     }
-                    //si es coordinadora, entonces se lo envia a los demas
-                    if(isCoordinador){
-                        for(int i = 0; i < maquinas.size(); ++i){
-                            ClienteThread clientEleccion = new ClienteThread(ip, puerto, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "", "electo:" + ip + ":" + Integer.toString(puerto));
-                            clientEleccion.start();
-                        }
-                        ClienteThread clientEleccion = new ClienteThread(ip, puerto, ip, puerto, "", "electo:" + ip + ":" + Integer.toString(puerto));
-                        clientEleccion.start();
-                    }
                 }
                 //si se recibe un 404 cuando se hace un ping a la maquina coordinadora
-                else if(messageElements[0].equals("404")){
+                else if(messageElements[0].equals("404") && !isCoordinador){
                     System.out.println("Iniciando Elecciones");
                     sock.close();
                     input.close();
@@ -280,27 +292,40 @@ public class ServerThread implements Runnable{
                         clientAlive.start();
                     }
                     isCoordinador = true;
-                    //por cada maquina mayor revisa el mensaje
-                    for(int i = 0; i < maquinasMayores.size(); ++i){
+                    //comienza a revisar todos los mensajes que lleguen producto de la elección
+                    vaciando = true;
+                    while(vaciando){
                         sock = serv.accept();
                         input = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
                         mensaje = input.readUTF();
-                        //si recibe al menos un yes, no es coordinadora
-                        if(mensaje.equals("yes")){
+                        messageElements = mensaje.split(":");
+                        //si una mayor esta viva, entonces no coordina
+                        if(messageElements[0].equals("yes")){
                             isCoordinador = false;
+                        }
+                        //si recibe un isAlive, entonces responde y envia a los mayores
+                        else if(messageElements[0].equals("isAlive")){
+                            //dice que si esta viva
+                            ClienteThread clientYes = new ClienteThread(ip, puerto, messageElements[1], Integer.parseInt(messageElements[2]), "", "yes");
+                            clientYes.start();
+                            for(int i = 0; i < maquinasMayores.size(); ++i){
+                                ClienteThread clientAlive = new ClienteThread(ip, puerto, maquinasMayores.get(i)[0], Integer.parseInt(maquinasMayores.get(i)[1]), "", "isAlive:" + ip + ":" + Integer.toString(puerto));
+                                clientAlive.start();
+                            }
+                        }
+                        //si recibe un anuncio de coordinador, lo actualiza y termina de vaciar
+                        else if(messageElements[0].equals("electo")){
+                            isCoordinador = false;
+                            coordinador[0] = messageElements[1];
+                            coordinador[1] = messageElements[2];
                         }
                         sock.close();
                         input.close();
                     }
-                    //de lo contrario, avisa que es coordinadora
-                    if(isCoordinador){
-                        for(int i = 0; i < maquinas.size(); ++i){
-                            ClienteThread clientEleccion = new ClienteThread(ip, puerto, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "", "electo:" + ip + ":" + Integer.toString(puerto));
-                            clientEleccion.start();
-                        }
-                        ClienteThread clientEleccion = new ClienteThread(ip, puerto, ip, puerto, "", "electo:" + ip + ":" + Integer.toString(puerto));
-                        clientEleccion.start();
-                    }
+                }
+
+                else if(messageElements[0].equals("")){
+                    //nada unu
                 }
 
                 sock.close();
@@ -319,6 +344,15 @@ public class ServerThread implements Runnable{
                     System.out.println("vaciado");
                     vaciando = false;
                     mensaje = "";
+
+                    if(elecciones && isCoordinador){
+                        for(int i = 0; i < maquinas.size(); ++i){
+                            ClienteThread clientEleccion = new ClienteThread(ip, puerto, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "", "electo:" + ip + ":" + Integer.toString(puerto));
+                            clientEleccion.start();
+                        }
+                        ClienteThread clientEleccion = new ClienteThread(ip, puerto, ip, puerto, "", "electo:" + ip + ":" + Integer.toString(puerto));
+                        clientEleccion.start();
+                    }
                     //enviar siguiente tarea
                 }
                 //si no estabamos en elecciones

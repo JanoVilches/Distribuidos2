@@ -291,7 +291,7 @@ public class Server {
         for (int i = 0; i < maquinas.size(); i++) {//flooding de las pripridades.
             try{
                 //se necesita, ip y puerto de origen, ip y puerto de destino, nombre, y mensaje: en este caso es el la ip del server + su prioridad.
-                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", IP + "," + Long.toString(max_prioridad));
+                ClienteThread c = new ClienteThread(IP, PUERTO, maquinas.get(i)[0], Integer.parseInt(maquinas.get(i)[1]), "cliente1", IP + "," + Integer.toString(PUERTO) + "," + Long.toString(max_prioridad));
                 c.start();
             }
             catch(NumberFormatException a){
