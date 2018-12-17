@@ -25,7 +25,7 @@ public class ClienteThread implements Runnable {
     public void run() {
         try {
             sc = new Socket(ipDestino, puertoDestino); //se crea la conexion con el destino.
-            System.out.println("Conexion establecida...");
+
             salida = new DataOutputStream(sc.getOutputStream());
             salida.writeUTF(mensaje); //envio del mensaje en formato String.
             salida.flush();

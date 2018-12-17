@@ -35,15 +35,6 @@ public class ServerThread implements Runnable{
         this.isCoordinador = cord;
         this.ip = ipO;
         this.maquinas = maq;
-        for(int i = 0; i < maq.size(); ++i){
-            //cambiar a 2 mas adelante
-            String[] aux = new String[3];
-            //IP
-            aux[0] = maq.get(i)[0];
-            //puerto, borrar más tarde
-            aux[1] = maq.get(i)[1];
-            this.maquinasMayores.add(aux);
-        }
     }
 
     public void run(){
@@ -51,7 +42,7 @@ public class ServerThread implements Runnable{
         Socket sock = null;
         DataInputStream input = null;
         String mensaje = "";
-        String [] messageElements;
+        String [] messageElements = null;
         boolean vaciando = false;
         boolean elecciones= false;
 
@@ -124,6 +115,15 @@ public class ServerThread implements Runnable{
                 }
                 ClienteThread clientEleccion = new ClienteThread(ip, puerto, ip, puerto, "", "electo:" + ip + ":" + Integer.toString(puerto));
                 clientEleccion.start();
+                try {
+                    sock = serv.accept();
+                    //leer el mensaje
+                    input = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
+                    mensaje = input.readUTF();
+                    messageElements = mensaje.split(":");
+                } catch (Exception e) {
+                    //TODO: handle exception
+                }
             }
         }
         //si no fue elegida para inciar
@@ -137,6 +137,9 @@ public class ServerThread implements Runnable{
                 mensaje = input.readUTF();
                 messageElements = mensaje.split(":");
                 //mientras reciba un isAlive o un si estoy vivo
+                if (messageElements[0].equals("electo")) {
+                    isCoordinador = false;
+                }
                 while(messageElements[0].equals("isAlive") || messageElements[0].equals("yes")){
                     //si recibe un isAlive
                     if(messageElements[0].equals("isAlive")){
@@ -157,7 +160,15 @@ public class ServerThread implements Runnable{
                             }
                             ClienteThread clientEleccion = new ClienteThread(ip, puerto, ip, puerto, "", "electo:" + ip + ":" + Integer.toString(puerto));
                             clientEleccion.start();
-                            break;
+                            try {
+                                sock = serv.accept();
+                                //leer el mensaje
+                                input = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
+                                mensaje = input.readUTF();
+                                messageElements = mensaje.split(":");
+                            } catch (Exception e) {
+                                //TODO: handle exception
+                            }
                         }
                     }
                     //si recibe un si, entonces no es la coordinadora
@@ -175,7 +186,8 @@ public class ServerThread implements Runnable{
         }
 //
 //INICIO POST ELECCIONES
-//
+        System.out.println(messageElements[0]);
+
         while(true){
             try{
                 messageElements = mensaje.split(":");
@@ -221,6 +233,7 @@ public class ServerThread implements Runnable{
                 
                 //si se recibe un isAlive
                 else if(messageElements[0].equals("isAlive")){
+                    System.out.println("Iniciando Elecciones");
                     //se inicia el proceso de elecciones desde esta maquina
                     elecciones = true;
                     //dice que si esta viva
@@ -256,6 +269,7 @@ public class ServerThread implements Runnable{
                 }
                 //si se recibe un 404 cuando se hace un ping a la maquina coordinadora
                 else if(messageElements[0].equals("404")){
+                    System.out.println("Iniciando Elecciones");
                     sock.close();
                     input.close();
                     //iniciar elecciones
@@ -302,6 +316,7 @@ public class ServerThread implements Runnable{
                 //si estabamos vaciando la cola de mensajes
                 if(vaciando){
                     //dejamos de vaciar
+                    System.out.println("vaciado");
                     vaciando = false;
                     mensaje = "";
                     //enviar siguiente tarea

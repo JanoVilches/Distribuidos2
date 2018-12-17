@@ -268,11 +268,13 @@ public class Server {
             System.out.println("Este servidor iniciara las llamadas");
         }
 
+        scan.nextLine();
+
         //Creacion de los Thread Servidor y Cliente que realizaran todo el codigo.
 
          //se crea el Thread servidor, que realiza el algortimo. Definir los parametros cuando se tenga listo.
         ServerThread server = new ServerThread(Doctores, Enfermeros, Paramedicos, Requerimientos, Pacientes, max_prioridad, maquinas, PUERTO, coordinador, IP);
-        server.start();
+        
         try{
             Thread.sleep(2000);
         } catch (Exception e){}
@@ -280,6 +282,7 @@ public class Server {
         String iniciar = scan.nextLine();
         System.out.println("Dando tiempo para inicializar el resto de servidores");
         try{
+            server.start();
             Thread.sleep(10000);
         } catch (Exception e){}
 
