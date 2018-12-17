@@ -206,12 +206,12 @@ public class ServerThread implements Runnable{
                     }
                 }
                 //si llega un mensaje de tarea lista
-                else if(true/*tarea lista*/){
+                else if(false/*tarea lista*/){
                     //enviar siguiente tarea
                 }
 
                 //si llega un mensaje de hacer tarea
-                else if(true/*hacer tarea*/){
+                else if(false/*hacer tarea*/){
                     //agregar a la cola de tareas
                     //hacer siguiente tarea
                 }
