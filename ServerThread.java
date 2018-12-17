@@ -181,6 +181,9 @@ public class ServerThread implements Runnable{
                 messageElements = mensaje.split(":");
                 //si reciben un mensaje de anuncio de coordinador
                 if(messageElements[0].equals("electo")){
+                    if(isCoordinador){
+                        System.out.println("soy el coordinador con prioridad " + Long.toString(prioridad));
+                    }
                     elecciones = false;
                     //almacenan el coordinador
                     coordinador = new String[2];
